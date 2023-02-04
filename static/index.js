@@ -9,10 +9,9 @@ const fib = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34];
 const fibSum = [0, 1, 2, 4, 7, 12, 20, 33, 54, 88]
 const fibX = [0, 0, -1, 0, 3, -1, -6, 2, 15, -6]
 const fibY = [0, 1, 0, -1, 1, 4, -1, -9, 4, 25]
-const AnWinX = 1000;
+const AnWinX = window.innerWidth * 0.9;
 const AnWinY = AnWinX * 34/55;
 const scale = AnWinX / 55;
-// const scale = 1;
 const AnWinCx = AnWinX / 2;
 const AnWinCy = AnWinY / 2;
 const timeStep = 1000;
@@ -211,60 +210,76 @@ async function sequence() {
     }
 }
 
+const d = [
+    [0, -1],
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    
+]
 async function test() {
-    clear();
-    d3.select(".workspace")
-        .append("line")
-        .attr("x1", AnWinCx)
-        .attr("y1", 0)
-        .attr("x2", AnWinCx)
-        .attr("y2", AnWinY)
-        .attr("stroke", highlightColor)
-    d3.select(".workspace")
-        .append("line")
-        .attr("x1", 0)
-        .attr("y1", AnWinCy)
-        .attr("x2", AnWinX)
-        .attr("y2", AnWinCy)
-        .attr("stroke", highlightColor)
-
-    const dxTest =[
-        [0, 0, -1, 3/2, 5/2, 0],
-        [0, 0, -1, 3/2, 5/2, 0],
-        [0, 0, 1/2, -3/4, 5/2, 0],
-        [0, 0, 0, 0, 5/2, 0],
-        [0, 0, 0, 0, -3/2, 0],
-        [0, 0, 0, 0, 0, 0],
-    ];
-    const dyTest =[
-        [0, -1/2, 0, 9/4, 0, 0],
-        [0, 1/2, 0, 3/4, 0, 0],
-        [0, 0, 0, 3/2, 0, 0],
-        [0, 0, 0, -1, 0, 0],
-        [0, 0, 0, 0, 0, -4],
-        [0, 0, 0, 0, 0, 0],
-    ];
-    for (let i = 1; i < 7; i++) {
-        let box = new fibBox(i, AnWinCx, AnWinCy, i % 2);
-        box.display();
-        console.log(i, box.cx, box.x, box.val);
-        // box.transform(0, 0, 1/1000, 0, 0);
-        // for (let j = 0; j < 6; j++) {
-        //     let curScale = (j % 2) ? fib[j]/fib[j+2] : 1;
-        //     curScale *= (j+1 == i) ? 1000 * 34 : 1;
-        //     const dx = dxTest[i-1][j];
-        //     const dy = dyTest[i-1][j];
-        //     // box.transform(dx, dy, curScale, timeStep, j*timeStep);
-        //     box.transform(dx, dy, curScale, timeStep, 0);
-        //     console.log(i, j, box.cx, box.cy)
-        // }
+    const ws = d3.select(".workspace");
+    const n = 8;
+    let pre = ws;
+    for (let i = n; i > 0; i--) {
+        const size = fib[i] * scale;
+        pre.append("g")
+            .classed(`g${i}`, true)
+            // .append("g")
+            .append("rect")
+            .attr("x", AnWinCx - size / 2)
+            .attr("y", AnWinCy - size / 2)
+            .attr("width", size)
+            .attr("height", size)
+            .attr("stroke", "#00000000")
+            .attr("fill", "#00000000")
+        pre = d3.select(`.g${i}`);
+        pre.select("rect")
+            .transition()
+            .duration(1000)
+            .delay((i-1)*1000)
+            .attr("stroke", textColor)
+        pre.transition()
+            .duration(1000)
+            .delay(i*1000)
+            .attr("transform", `translate(${size/2*d[(i-1)%4][0]} ${size/2*d[(i-1)%4][1]})`)
     }
+    // const g1 = ws.append("g")
+    //     .classed("g1", true)
+    // g1.append("g")
+    //     .append("rect")
+    //     .attr("x", AnWinCx - 25)
+    //     .attr("y", AnWinCy - 25)
+    //     .attr("width", 50)
+    //     .attr("height", 50)
+    //     .attr("stroke", textColor)
+    //     .attr("fill", "#00000000")
+    // const g0 = g1.append("g")
+    //     .classed("g0", true)
+    // g0.append("g")
+    //     .append("rect")
+    //     .attr("x", AnWinCx - 25)
+    //     .attr("y", AnWinCy - 25)
+    //     .attr("width", 50)
+    //     .attr("height", 50)
+    //     .attr("stroke", textColor)
+    //     .attr("fill", "#00000000")
+    // g0.transition()
+    //     .duration(1000)
+    //     .delay(1000)
+    //     .attr("transform", "translate(0 -50)")
+    // g1.transition()
+    //     .duration(1000)
+    //     .delay(2000)
+    //     .attr("transform", "translate(-50 0)")
+
 }
 
 async function main() {
     await setup();
-    await sequence();    
-    // await test();
+    // await sequence();    
+    await test();
 }
 
+main();
 window.main = main;
